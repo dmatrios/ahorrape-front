@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "tailwindcss";
+/* Opcional, pero ayuda a tener el fondo claro por defecto */
+
+
+body {
+  @apply bg-slate-100 text-slate-900; /* fondo claro por defecto */
+}
