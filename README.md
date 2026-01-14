@@ -1,205 +1,283 @@
-⭐ AhorraPE – Sistema de Gestión de Gastos Personales
-<p align="center"> <img src="https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=java&logoColor=white"/> <img src="https://img.shields.io/badge/Spring_Boot-3.x-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"/> <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white"/> <img src="https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black"/> 
+# React + TypeScript + Vite
 
-AhorraPE es una aplicación full-stack diseñada para ayudar a las personas a registrar, visualizar y analizar sus gastos diarios de manera sencilla y rápida.
-El proyecto combina un backend sólido en Spring Boot 3 con un frontend moderno en React, siguiendo buenas prácticas reales del mundo laboral.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-🧭 1. Arquitectura del Proyecto
-ahorrape/
-│── ahorrape-api/          # Backend – Java 21 + Spring Boot 3.x
-│── ahorrape-frontend/     # Frontend – React + Axios
-│── .gitignore
-│── README.md
+Currently, two official plugins are available:
 
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-El repositorio aplica una arquitectura tipo monorepo simple, ideal para proyectos full-stack pequeños/medianos.
+## React Compiler
 
-🛠️ 2. Backend – AhorraPE API
-✔️ Tecnologías
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-Java 21
+## Expanding the ESLint configuration
 
-Spring Boot 3.x
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-Spring Web
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+     # Ahorrape — Frontend
 
-Spring Data JPA
+    Documentación detallada (ES)
 
-Lombok
+    Esta documentación explica la estructura del proyecto, cómo consumir las APIs desde el frontend, ejemplos prácticos con `axios`, flujos principales (login, dashboard, registro de transacciones), y notas de desarrollo pensadas para un desarrollador junior.
 
-MySQL
+    ---
 
-Maven
+    **Índice**
 
-✔️ Arquitectura actual (por capas)
-controller/
-service/
-service.impl/
-repository/
-domain/      # Entidades JPA
-dto/         # request + response
-exception/   # GlobalExceptionHandler
-config/      # Preparado para seguridad
+    - Introducción rápida
+    - Requisitos y setup
+    - Scripts útiles
+    - Estructura del proyecto
+    - API client (autenticación y baseURL)
+    - Endpoints (resumen por feature)
+    - Ejemplos de consumo (axios + snippets desde componentes)
+    - Flujo típico: login → dashboard → registrar transacción
+    - UX / responsive (consideraciones implementadas)
+    - Consejos de desarrollo y debugging
+    - Mejoras sugeridas
 
-✔️ Funcionalidades (MVP)
+    ---
 
-Registro y consulta de usuarios
+    ## Introducción rápida
 
-Registro y consulta de gastos
+    Ahorrape es el frontend de una aplicación para gestionar ingresos y gastos personales. Está implementado con React + TypeScript y usa Vite como bundler. El frontend se comunica con un backend mediante una API REST expuesta en `http://localhost:8080/api` por defecto.
 
-Base de datos MySQL lista (ahorrape_db)
+    El repositorio contiene features organizadas por dominio (auth, usuarios, categorias, transacciones, dashboard) y un cliente API central (`src/api/apiClient.ts`) que centraliza la configuración de `axios` y el envío del token.
 
-🧱 Próximas fases del backend
-Fase 0 — Ordenar y fortalecer la base
+    ## Requisitos y setup
 
-Refactor controllers → sólo llaman a services
+    - Node.js (v16+ recomendado) y npm (o Yarn).
 
-Services → sólo devuelven DTOs (no entidades)
+    Pasos básicos para arrancar en desarrollo:
 
-Validaciones (Bean Validation)
+    ```powershell
+    npm install
+    npm run dev
+    ```
 
-Soft delete con campo activo
+    Build para producción:
 
-Fase 1 — Seguridad: Spring Security + JWT
+    ```powershell
+    npm run build
+    npm run preview
+    ```
 
-Login / Registro
+    ## Scripts útiles (en `package.json`)
 
-Token JWT con expiración
+    - `dev`: arranca Vite en modo desarrollo (`npm run dev`).
+    - `build`: construye la app (`tsc -b && vite build`).
+    - `preview`: sirve la build (`vite preview`).
+    - `lint`: corre ESLint en el proyecto.
 
-Filtro de autenticación
+    ## Estructura del proyecto (resumen)
 
-Rutas públicas y privadas
+    - `src/`
+      - `api/`
+        - `apiClient.ts` — instancia de `axios` con `baseURL` y un interceptor para Authorization.
+      - `features/`
+        - `auth/` — login, auth API y páginas de autenticación.
+        - `usuarios/` — registro y gestión de usuarios.
+        - `categorias/` — CRUD de categorías.
+        - `transacciones/` — listar/crear/editar/eliminar transacciones.
+        - `dashboard/` — resumen mensual, componentes reutilizables.
+      - `layout/` — `MainLayout`, `Navbar`, `Sidebar`.
+      - `router/` — `AppRouter.tsx` con rutas principales.
+      - `theme/` — provider de tema.
+      - `assets/`, `components/`, etc.
 
-Contexto del usuario autenticado
+    Cada feature suele contener una carpeta `api/` con funciones que encapsulan llamadas a endpoints.
 
-Fase 2 — Modelo avanzado
+    ## API client
 
-Categorías de gastos
+    Archivo: `src/api/apiClient.ts`
 
-Relaciones:
+    - `baseURL` está fijado a `http://localhost:8080/api`.
+    - Hay un interceptor de request que añade la cabecera `Authorization: Bearer <token>` si existe `ahorrape-token` en `localStorage`.
 
-Usuario → Gastos (1:N)
+    Ejemplo (resumen):
 
-Categoría → Gastos (1:N)
+    ```ts
+    import axios from 'axios';
+    export const api = axios.create({ baseURL: 'http://localhost:8080/api' });
+    // interceptor: añade Authorization con token desde localStorage
+    ```
 
-Optimizar consultas (JPQL)
+    Notas importantes para auth:
+    - El login devuelve un token (JWT u otro) que el frontend guarda en `localStorage` bajo la clave `ahorrape-token`.
+    - Además, el usuario autenticado se guarda en `localStorage` como `ahorrape-user` (usado para obtener `usuario.id`).
 
-Fase 3 — Dashboard
+    ## Endpoints (resumen extraído del código)
 
-Totales mensuales
+    A continuación se listan los endpoints consumidos por el frontend, con su ruta, método, y shapes de request/response según tipos TS.
 
-Totales por categoría
+    ### Auth
+    Archivo: `src/features/auth/api/authApi.ts`
 
-Mejor paginación y filtros
+    - POST `/auth/login`
+      - Request: `{ email: string, password: string }`
+      - Response: `{ token: string, usuario: { id:number, nombre:string, email:string } }`
+      - Uso: `login({ email, password })` → guarda token y usuario en `localStorage`.
 
-🎨 3. Frontend – AhorraPE Web
-✔️ Tecnologías
+    ### Usuarios
+    Archivo: `src/features/usuarios/api/usuariosApi.ts`
 
-React
+    - POST `/usuarios`
+      - Request: `{ nombre:string, email:string, password:string }`
+      - Response: `{ id:number, nombre:string, email:string }`
+      - Uso: `registrarUsuario(data)`
 
-React Router
+    ### Categorías
+    Archivo: `src/features/categorias/api/categoriasApi.ts`
 
-Axios
+    - GET `/categorias`
+      - Response: `CategoriaResponse[]` donde `CategoriaResponse` tiene `id, nombre, descripcion, tipoCategoria, activa`.
+      - Uso: `listarCategorias()`
 
-Hooks personalizados
+    - POST `/categorias`
+      - Request: `{ nombre, descripcion?, tipoCategoria }`
+      - Response: `CategoriaResponse` (creada).
+      - Uso: `crearCategoria(data)`
 
-Context API (autenticación)
+    - PUT `/categorias/{id}`
+      - Request: `ActualizarCategoriaRequest` (puede incluir `activa` para activar/desactivar).
+      - Response: `CategoriaResponse` (actualizada).
+      - Uso: `actualizarCategoria(id, data)`
 
-Tailwind (a futuro si se decide migrar)
+    > Nota: en la UI se implementó un toggle optimista para activar/desactivar categorías: la UI cambia inmediatamente y la petición `PUT` actualiza en segundo plano; si falla, se revierte.
 
-✔️ Estructura actual
-src/
-  components/
-  pages/
-  services/        # Axios & API services
-  hooks/
-  context/
+    ### Transacciones
+    Archivo: `src/features/transacciones/api/transaccionesApi.ts`
 
-📌 Próximas funcionalidades
+    - GET `/transacciones/usuario/{usuarioId}`
+      - Response: `TransaccionResponse[]` con `id, usuarioId, usuarioNombre, categoriaId, categoriaNombre, tipo, monto, fecha, descripcion`.
+      - Uso: `listarTransaccionesPorUsuario(usuarioId)`
 
-Integración con login JWT
+    - POST `/transacciones`
+      - Request: `CrearTransaccionRequest` (usuarioId, categoriaId, tipo ("INGRESO"|"GASTO"), monto, fecha (YYYY-MM-DD), descripcion)
+      - Response: `TransaccionResponse` (nueva transacción)
+      - Uso: `crearTransaccion(data)`
 
-Rutas privadas
+    - PUT `/transacciones/{id}`
+      - Request: `ActualizarTransaccionRequest` (campos opcionales para actualizar)
+      - Response: `TransaccionResponse` (actualizada)
+      - Uso: `actualizarTransaccion(id, data)`
 
-Dashboard de gastos
+    - DELETE `/transacciones/{id}`
+      - Response: 204/200 vacío
+      - Uso: `eliminarTransaccion(id)`
 
-Gráficos y totales
+    ### Dashboard / Resumen
+    Archivo: `src/features/dashboard/api/resumenApi.ts`
 
-Mejor UI/UX
+    - GET `/resumen/usuario/{usuarioId}?mes={mes}&anio={anio}`
+      - Response: `ResumenMensualResponse` con `totalIngresos, totalGastos, saldo, transaccionesDelMes[]`.
+      - Uso: `obtenerResumenMensual(usuarioId, mes, anio)`
 
-Manejo global del usuario con Context
+    ## Ejemplos de consumo desde el frontend
 
-🚀 4. Instalación y Ejecución
-Backend
-cd ahorrape-api
-mvn spring-boot:run
+    A continuación hay ejemplos de cómo se consumen las APIs desde el código existente y cómo puedes hacerlo tú en nuevos componentes.
 
+    1) Login (ejemplo en `LoginPage`):
 
-El backend se ejecutará en:
+    ```ts
+    import { login } from '../features/auth/api/authApi';
 
-http://localhost:8080
+    const handleLogin = async () => {
+      const data = { email: 'user@example.com', password: 'pass' };
+      const res = await login(data);
+      // guardar token y usuario en localStorage
+      localStorage.setItem('ahorrape-token', res.token);
+      localStorage.setItem('ahorrape-user', JSON.stringify(res.usuario));
+    };
+    ```
 
-Frontend
-cd ahorrape-frontend
-npm install
-npm run dev
+    2) Consumir recursos autenticados:
 
+    ```ts
+    import { listarCategorias } from '../features/categorias/api/categoriasApi';
 
-El frontend estará disponible en:
+    const categorias = await listarCategorias();
+    // apiClient ya añade header Authorization si hay token
+    ```
 
-http://localhost:3000
+    3) Crear una transacción (ejemplo desde `TransaccionesPage`):
 
-🌱 5. Roadmap General (lo que sigue)
-🔹 1. Terminar Fase 0 del backend
+    ```ts
+    import { crearTransaccion } from '../features/transacciones/api/transaccionesApi';
 
-Refactor + DTOs + validaciones + soft delete.
+    await crearTransaccion({
+      usuarioId: usuario.id,
+      categoriaId: 3,
+      tipo: 'GASTO',
+      monto: 25.5,
+      fecha: '2025-11-21',
+      descripcion: 'Cena'
+    });
+    ```
 
-🔹 2. Implementar seguridad (Fase 1)
+    4) Ejemplo `curl` (para probar APIs desde terminal):
 
-Login, JWT, roles básicos, rutas protegidas.
+    ```bash
+    curl -X POST \
+      http://localhost:8080/api/auth/login \
+      -H 'Content-Type: application/json' \
+      -d '{"email":"user@example.com","password":"pass"}'
+    ```
 
-🔹 3. Integrar frontend con JWT
+    Luego usar `Authorization: Bearer <token>` en las siguientes peticiones.
 
-Context global, axios interceptors, rutas privadas.
+    ## Flujo típico (para un dev junior)
 
-🔹 4. Dashboard profesional
+    1. **Registro / Login**
+      - El usuario se registra con `POST /usuarios` o inicia sesión con `POST /auth/login`.
+      - Tras login guardamos `ahorrape-token` y `ahorrape-user` en `localStorage`.
 
-Gráficos de gastos, totales, filtros.
+    2. **Ir al Dashboard**
+      - `DashboardPage` lee `ahorrape-user` y llama `obtenerResumenMensual(usuario.id, mes, anio)` para cargar datos.
 
-🔹 5. Preparar despliegue
+    3. **Registrar movimiento**
+      - En `TransaccionesPage` el formulario crea transacciones con `POST /transacciones` y luego refresca la lista con `listarTransaccionesPorUsuario(usuario.id)`.
 
-Opciones:
+    4. **Categorías**
+      - `CategoriasPage` lista categorías (`GET /categorias`) y permite crear/editar/activar-desactivar (PUT `/categorias/{id}`).
+      - Activar/desactivar se implementó con actualización optimista en la UI.
 
-Frontend: Vercel / Netlify
+    ## UX / Responsive (qué se implementó ya)
 
-Backend: Render / Railway / AWS
+    - Las tablas grandes se ocultan en pantallas pequeñas (`md` breakpoint) y se muestran tarjetas compactas para móvil.
+    - Headers y botones apilan en vertical en pantallas pequeñas para mejorar accesibilidad táctil.
+    - Los previews en `Dashboard` se muestran como menús absolutos en escritorio, y como cajas full-width en móvil para evitar overflow.
 
-BD: Railway o RDS (MySQL)
+    ## Consejos para debug y desarrollo
 
-🧪 6. Calidad del Código (Buenas Prácticas)
+    - Si ves errores 200 pero la UI no cambia, revisa Network → respuesta del `PUT` y luego el `GET` (¿el backend realmente guardó?).
+    - Para problemas de CORS o conexión verifica que el backend esté en `http://localhost:8080` o cambia `baseURL` en `src/api/apiClient.ts`.
+    - Si ves problemas con imports tipo `does not provide an export named 'api'`, asegúrate de que `apiClient.ts` exporte el `api` (en este repo, hay `export const api = ...` y `export default api`).
 
-Arquitectura por capas
+    ## Buenas prácticas y sugerencias
 
-DTOs para aislamiento del dominio
+    - Centralizar llamadas a la API (ya está hecho en `features/*/api`). Mantén allí la definición de tipos y shapes.
+    - Manejo de errores: capturar `err.response?.data` para mostrar mensajes amigables en UI.
+    - Evitar lógica de autenticación en muchos componentes: usar un Auth context o hooks para exponer `usuario` y `logout`.
+    - Considerar mover `localStorage` logic a util o hook (`useAuth`) para centralizar.
 
-Manejo global de errores
+    ## Posibles mejoras futuras
 
-Validaciones con Hibernate Validator
+    - Testear las APIs con mocks (MSW) para tests unitarios.
+    - Añadir un `useAuth` hook para centralizar login/logout, refresh token y permisos.
+    - Mejorar accesibilidad y roles (aria-labels, focus traps en modales).
+    - Documentación automática de endpoints si se añade OpenAPI en el backend.
 
-Servicios sin lógica de presentación
+    ---
 
-Controllers delgados
+    Si quieres, puedo:
+    - Incluir ejemplos `curl`/Postman más completos por endpoint.
+    - Generar un `CONTRIBUTING.md` y un `DEVELOPER.md` con pasos más formales para nuevos devs.
+    - Convertir los ejemplos en snippets copyable para VSCode (code snippets JSON).
 
-Estructura limpia y escalable
-
-👨‍💻 7. Autor
-
-Daniel Maturrano
-Full-Stack Developer en formación
-Stack: Java + Spring Boot + React + MySQL + Docker
-Roadmap enfocado en backend profesional.
-
-📎 8. Notas finales
-
-Este repositorio representa un proyecto real en desarrollo continuo con enfoque laboral:
-escribir código limpio, modular y preparado para escalar.
+    Dime si quieres que haga alguna ampliación específica o que genere un `CONTRIBUTING.md` también.
